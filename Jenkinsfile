@@ -1,35 +1,56 @@
 pipeline {
     agent {
         node {
-            label 'Jenkins-slave-node'  
+            label 'Jenkins-Slave-Node'
         }
     }
     environment {
         PATH = "/opt/maven/bin:$PATH"
-        scannerHome = tool name: 'sonar-scanner-meportal', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
     }
     stages {
-        stage("Build Code") { 
+        stage("Build Code") {
             steps {
                 echo "Build started"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
                 echo "Build completed"
             }
         }
-        /*stage('SonarQube analysis') {
+        /*
+        stage("Test Stage") {
+            steps {
+                echo "----------- Unit Test Started ----------"
+                sh 'mvn surefire-report:report'
+                echo "----------- Unit Test Completed ----------"
+            }
+        }
+        stage('SonarQube analysis') {
+            environment {
+                scannerHome = tool 'Sonar-Scanner-meportal'
+            }
+            steps {
+                withSonarQubeEnv('SonrQube-Server-meportal') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
+        stage("Quality Gate") {
             steps {
                 script {
-                    withSonarQubeEnv('sonar-server-meportal') {
-                        sh "${env.scannerHome}/bin/sonar-scanner" //avd
+                    timeout(time: 1, unit: 'HOURS') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
                     }
                 }
             }
-            */
-            stage("Artifact Publish") {
+        }
+        */
+        stage("Artifact Publish") {
             steps {
                 script {
                     echo '------------- Artifact Publish Started ------------'
-                    def server = Artifactory.newServer url:"https://myportajfrog.jfrog.io//artifactory" , credentialsId:"jfrog-cred"
+                    def server = Artifactory.newServer url:"https://meportajfrog.jfrog.io//artifactory" ,  credentialsId:"jforg-cred"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
                     def uploadSpec = """{
                         "files": [
@@ -48,8 +69,7 @@ pipeline {
                     echo '------------ Artifact Publish Ended -----------'  
                 }
             }   
-
-        
         }
+
     }
 }
