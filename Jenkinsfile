@@ -12,7 +12,7 @@ pipeline {
         stage("Build Code") { 
             steps {
                 echo "Build started"
-                sh 'mvn deploy package -Dmaven.test.skip=true'
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
                 echo "Build completed"
             }
         }
@@ -29,7 +29,7 @@ pipeline {
             steps {
                 script {
                     echo '------------- Artifact Publish Started ------------'
-                    def server = Artifactory.newServer url:"https://meportajfrog.jfrog.io//artifactory" ,  credentialsId:"jfrog-cred"
+                    def server = Artifactory.newServer url:"https://myportajfrog.jfrog.io//artifactory" , credentialsId:"jfrog-cred"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
                     def uploadSpec = """{
                         "files": [
