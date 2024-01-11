@@ -1,14 +1,14 @@
 pipeline {
     agent {
         node {
-            label 'jenkins-Slave-Node'
+            label 'Jenkins-slave-node'
         }
     }
     environment {
         PATH = "/opt/apche-maven-3.9.6/bin:$PATH"
     }
     stages {
-        stage("Build stage") {
+        stage("Build Stage") {
             steps {
                 echo "Build started"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
