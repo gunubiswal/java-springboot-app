@@ -1,21 +1,20 @@
 pipeline {
     agent {
         node {
-            label 'Jenkins-Slave-Node'
+            label 'jenkins-Slave-Node'
         }
     }
     environment {
-        PATH = "/opt/maven/bin:$PATH"
+        PATH = "/opt/apche-maven-3.9.6/bin:$PATH"
     }
     stages {
-        stage("Build Code") {
+        stage("Build stage") {
             steps {
                 echo "Build started"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
                 echo "Build completed"
             }
         }
-        /*
         stage("Test Stage") {
             steps {
                 echo "----------- Unit Test Started ----------"
@@ -23,6 +22,7 @@ pipeline {
                 echo "----------- Unit Test Completed ----------"
             }
         }
+        /*
         stage('SonarQube analysis') {
             environment {
                 scannerHome = tool 'Sonar-Scanner-meportal'
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 script {
                     echo '------------- Artifact Publish Started ------------'
-                    def server = Artifactory.newServer url:"https://meportajfrog.jfrog.io//artifactory" ,  credentialsId:"jforg-cred"
+                    def server = Artifactory.newServer url:"https://meportajfrog.jfrog.io//artifactory" , credentialsId:"jforg-cred"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
                     def uploadSpec = """{
                         "files": [
