@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('sonar-server-meportal') {
-                        sh "${env.scannerHome}/bin/sonar-scanner"
+                        sh "${env.scannerHome}/bin/sonar-scanner" //avd
                     }
                 }
             }
