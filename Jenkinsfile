@@ -11,7 +11,7 @@ pipeline {
         stage("Build Stage") {
             steps {
                 echo "Build started"
-                sh 'mvn deploy package -Dmaven.test.skip=true'
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
                 echo "Build completed"
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 script {
                     echo '------------- Artifact Publish Started ------------'
-                    def server = Artifactory.newServer url: "https://meportal123.jfrog.io/artifactory", credentialsId: "jforg-credential"
+                    def server = Artifactory.newServer url: "https://meportal123.jfrog.io/artifactory", credentialsId: "jfrog-credential"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}"
                     def uploadSpec = """{
                         "files": [
@@ -70,5 +70,27 @@ pipeline {
                 }
             }   
         }
+        stage(" Create Docker Image ") {
+            steps {
+                script {
+                    echo '-------------- Docker Build Started -------------'
+                    app = docker.build("meportal123.jfrog.io/meportal-docker-local/myapp:1.0")
+                    echo '-------------- Docker Build Ended -------------'
+                }
+            }
+        }
+
+        stage (" Docker Publish "){
+            steps {
+                script {
+                        echo '---------- Docker Publish Started --------'  
+                        docker.withRegistry("https://meportal123.jfrog.io", 'jfrog-cred'){
+                        app.push()
+                        echo '------------ Docker Publish Ended ---------'  
+                    }    
+                }
+            }
+        }
+
     }
 }
